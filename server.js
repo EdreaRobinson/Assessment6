@@ -1,3 +1,5 @@
+const port = process.env.PORT || 3000
+
 const express = require('express')
 const path = require('path')
 const app = express()
@@ -5,6 +7,15 @@ const {bots, playerRecord} = require('./data')
 const {shuffleArray} = require('./utils')
 
 app.use(express.json())
+
+app.use(express.static("public"));
+
+app.get("/styles", (req, res) => {
+  res.sendFile(path.join(__dirname, "public/index.css"));
+});
+app.get("/js", (req, res) => {
+  res.sendFile(path.join(__dirname, "public/index.js"));
+});
 
 app.get('/api/robots', (req, res) => {
     try {
@@ -67,7 +78,6 @@ app.get('/api/player', (req, res) => {
     }
 })
 
-const port = process.env.PORT || 3000
 
 app.listen(port, () => {
   console.log(`Listening on port ${port}`)
