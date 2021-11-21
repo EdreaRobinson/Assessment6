@@ -3,6 +3,7 @@ const port = process.env.PORT || 3000
 const express = require('express')
 const path = require('path')
 const app = express()
+const server = express()
 const {bots, playerRecord} = require('./data')
 const {shuffleArray} = require('./utils')
 
@@ -16,6 +17,49 @@ app.get("/styles", (req, res) => {
 app.get("/js", (req, res) => {
   res.sendFile(path.join(__dirname, "public/index.js"));
 });
+
+var Rollbar = require('rollbar')
+var rollbar = new Rollbar({
+  accessToken: '9dde5ab5f59549fd85b95794a394b5c7',
+  captureUncaught: true,
+  captureUnhandledRejections: true,
+})
+
+// record a generic message and send it to Rollbar
+rollbar.log('Hello world!')
+
+server.get('/', function(req, res) {
+    rollbar.info("Let's get it, Rollbar!")
+    res.send("Don't stop...get it, get it!")
+})
+
+server.put('/put', function(req, res) {
+    rollbar.info("Who's playing with my stuff?")
+    res.send('update data')
+})
+
+server.post('/post', function(req, res) {
+    let name =req.body
+    rollbar.info("What are you adding?")
+    res.send('post data')
+    db("NAMES")
+    .insert(name)
+    .then((id) => {
+        res.status(200).json(id)
+    })
+    .catch((err) => {
+        const Error = err
+        console.log('ERROR', err)
+        rollbar.error(Error)
+    })
+})
+
+server.delete('/delete', function(req, res) {
+    rollbar.info("Why did you do that?")
+    res.send('delete data')
+})
+
+server.use(rollbar.errorHandler());
 
 app.get('/api/robots', (req, res) => {
     try {
